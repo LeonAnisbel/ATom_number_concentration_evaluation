@@ -1,8 +1,9 @@
-dir_atom = './ATom-merge_ncfiles/MER-SAGA'
+main_dir = '/vols/fs1/work/leon/ATom_vs_ECHAM'
+dir_atom = f'{main_dir}/ATom-merge_ncfiles/MER-SAGA'
 height_limit = 1000 # height limit in m
 experiment = 'echam_base'
 experiment = 'ac3_arctic'
-dir_echam = f'/Users/Leon/Desktop/ATom_vs_ECHAM/ECHAM_HAM_output/{experiment}'
+dir_echam = f'{main_dir}/ECHAM_HAM_output/{experiment}/NUM_radius'
 netcdf_file_dir = 'nc_files/'
 plot_dir = 'plots/'
 mode_atom = 'coarse' # select the mode

@@ -12,13 +12,13 @@ units = global_vars.units
 figure_dir = global_vars.plot_dir
 exp = global_vars.experiment
 
-def read_nc_files_No_conc(ds_atom_time_mean, sel_dates):
+def read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name):
     # read in netcdf-files
     nc_file_dir = global_vars.netcdf_file_dir
     exp = global_vars.experiment
-    c_fine_echam = xr.open_dataset(f'{nc_file_dir}/{exp}_c_fine_echam.nc')
-    c_acc_echam = xr.open_dataset(f'{nc_file_dir}/{exp}_c_acc_echam.nc')
-    c_coa_echam = xr.open_dataset(f'{nc_file_dir}/{exp}_c_coa_echam.nc')
+    c_fine_echam = xr.open_dataset(f'{nc_file_dir}/{exp}_c_fine_echam_{region_name}.nc')
+    c_acc_echam = xr.open_dataset(f'{nc_file_dir}/{exp}_c_acc_echam_{region_name}.nc')
+    c_coa_echam = xr.open_dataset(f'{nc_file_dir}/{exp}_c_coa_echam_{region_name}.nc')
 
     # %%
     # select the mode
@@ -34,7 +34,7 @@ def read_nc_files_No_conc(ds_atom_time_mean, sel_dates):
 
     return c_atom, c_echam_tpxy
 
-def plot_No_conc_ECHAM(data_echam_rmed, data_echam_num, ds_atom_time_mean, sel_dates):
+def plot_No_conc_ECHAM(data_echam_rmed, data_echam_num, region_name):
 # inside certain latitude band (ECHAM data, time average of sum of all ECHAM modes)
 
     # define a latitude band
@@ -65,15 +65,15 @@ def plot_No_conc_ECHAM(data_echam_rmed, data_echam_num, ds_atom_time_mean, sel_d
     ax.set_xlabel('r')
     ax.set_ylabel('n')
     ax.set_title(f'{lat_1}° - {lat_2}°')
-    plt.show()
+    plt.savefig(f'No_con_echam_{region_name}.png')
     plt.close()
 
     ##############################################
     # Calculate and plot the absolute difference #
     ##############################################
-def plot_absolute_diff_map(ds_atom_time_mean, sel_dates):
+def plot_absolute_diff_map(ds_atom_time_mean, sel_dates, region_name):
 
-    c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates)
+    c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name)
     diff_abs_whole_time = c_echam_tpxy - c_atom
 
     # The time step with the maximum absolute difference between model and observations is calculated.
@@ -109,14 +109,13 @@ def plot_absolute_diff_map(ds_atom_time_mean, sel_dates):
     gl.right_labels = False
 
 
-    plt.savefig(f'{figure_dir}/diff_abs_{str(t_start)[0:10]}-{str(t_end)[0:10]}_{exp}_{mode_atom}.pdf',
+    plt.savefig(f'{figure_dir}/diff_abs_{str(t_start)[0:10]}-{str(t_end)[0:10]}_{exp}_{mode_atom}_{region_name}.pdf',
                 bbox_inches='tight')
-    plt.show()
     plt.close()
 
-def plot_relat_diff_map(ds_atom_time_mean, sel_dates):
+def plot_relat_diff_map(ds_atom_time_mean, sel_dates, region_name):
 
-    c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates)
+    c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name)
     diff_rel_whole_time = (c_echam_tpxy - c_atom) / c_atom
 
     # The time step with the maximum relative difference between model and observations is calculated.
@@ -158,13 +157,12 @@ def plot_relat_diff_map(ds_atom_time_mean, sel_dates):
     gl.right_labels = False
 
     figure_dir = global_vars.plot_dir
-    plt.savefig(f'{figure_dir}/diff_rel_{str(t_start)[0:10]}-{str(t_end)[0:10]}_{exp}_{mode_atom}_new.pdf',
+    plt.savefig(f'{figure_dir}/diff_rel_{str(t_start)[0:10]}-{str(t_end)[0:10]}_{exp}_{mode_atom}_new_{region_name}.pdf',
                 bbox_inches='tight')
-    plt.show()
     plt.close()
 
     statistical_quantities = utils.statistics(c_atom, c_echam_tpxy, sel_dates)
-    with open(f'{figure_dir}/statistical_quantities_whole_time_{exp}_{mode_atom}.txt', 'w') as f:
+    with open(f'{figure_dir}/statistical_quantities_whole_time_{exp}_{mode_atom}_{region_name}.txt', 'w') as f:
         for statistical_quantity in statistical_quantities:
             f.write(f'{statistical_quantity[0]} = {statistical_quantity[1]:.2f} {statistical_quantity[2]}\n')
 
@@ -175,8 +173,8 @@ def plot_relat_diff_map(ds_atom_time_mean, sel_dates):
     ################
     # Scatter plot #
     ################
-def scatter_plot(ds_atom_time_mean, sel_dates):
-    c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates)
+def scatter_plot(ds_atom_time_mean, sel_dates, region_name):
+    c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name)
 
     print(f'Scatter plot')
     t_start = sel_dates[0]
@@ -209,7 +207,7 @@ def scatter_plot(ds_atom_time_mean, sel_dates):
     x_eq = np.array(
         [max(c_echam_tpxy_wo_nan.min(), c_atom_wo_nan.min()), min(c_echam_tpxy_wo_nan.max(), c_atom_wo_nan.max())])
     ax_scatter.plot(x_eq, x_eq, label='y = x', zorder=1)
-    ax_scatter.set_title(f'{str(t_start)[0:10]}-{str(t_end)[0:10]}\n{run}')
+    ax_scatter.set_title(f'{str(t_start)[0:10]}-{str(t_end)[0:10]}\n{exp}')
     ax_scatter.legend()
     ax_scatter.grid(True)
 
@@ -219,7 +217,8 @@ def scatter_plot(ds_atom_time_mean, sel_dates):
         plt.gcf().text(0.11, -(i + 3) * 0.04,
                        f'{statistical_quantities[i][0]} = {statistical_quantities[i][1]:.2e} {statistical_quantities[i][2]}')
 
-    plt.savefig(f'{figure_dir}/scatter_{str(t_start)[0:10]}-{str(t_end)[0:10]}_{exp}_{mode_atom}.pdf', bbox_inches='tight')
+    plt.savefig(f'{figure_dir}/scatter_{str(t_start)[0:10]}-{str(t_end)[0:10]}_{exp}_{mode_atom}_{region_name}.pdf',
+                bbox_inches='tight')
     plt.show()
     plt.close()
 

@@ -7,7 +7,7 @@ import plots
 from scipy.integrate import quad
 
 
-def No_particles_ECHAM_to_ATOM(data_echam_num, data_echam_rmed):
+def No_particles_ECHAM_to_ATOM(data_echam_num, data_echam_rmed, region_name):
     """Calculate number of particles in ECHAM that go into ATom fine, accumulation and coarse, respectively #
 """
     parameters_echam = global_vars.params_echam
@@ -183,22 +183,23 @@ def No_particles_ECHAM_to_ATOM(data_echam_num, data_echam_rmed):
                        -(2 + 2) * 0.04,
                        f'part of "coarse" in ECHAM from this mode = {float(fraction_coa.isel(time=0)) * 100} %')
 
-        plt.show()
+        figure_dir = global_vars.plot_dir
+        plt.savefig(f'{figure_dir}/number_distribution_for_example_r_median_i_{mode_echam_k}_{region_name}.png')
         plt.close()
 
     nc_file_dir = global_vars.netcdf_file_dir
     # sum up all contributions to ATom modes and save it in new netcdf-files; this seems to be faster
     c_fine_echam_0 = sum(parts_fine_echam)
     c_fine_echam_ds = c_fine_echam_0.to_dataset(name='c_num')
-    c_fine_echam_ds.to_netcdf(f'{nc_file_dir}/{exp}_c_fine_echam.nc')
+    c_fine_echam_ds.to_netcdf(f'{nc_file_dir}/{exp}_c_fine_echam_{region_name}.nc')
 
     c_acc_echam_0 = sum(parts_acc_echam)
     c_acc_echam_ds = c_acc_echam_0.to_dataset(name='c_num')
-    c_acc_echam_ds.to_netcdf(f'{nc_file_dir}/{exp}_c_acc_echam.nc')
+    c_acc_echam_ds.to_netcdf(f'{nc_file_dir}/{exp}_c_acc_echam_{region_name}.nc')
 
     c_coa_echam_0 = sum(parts_coa_echam)
     c_coa_echam_ds = c_coa_echam_0.to_dataset(name='c_num')
-    c_coa_echam_ds.to_netcdf(f'{nc_file_dir}/{exp}_c_coa_echam.nc')
+    c_coa_echam_ds.to_netcdf(f'{nc_file_dir}/{exp}_c_coa_echam_{region_name}.nc')
 
 
 
@@ -261,3 +262,11 @@ def statistics(c_atom, c_echam_tpxy, sel_dates):
          '']
     ]
     return statistical_quantities
+
+
+def region_definition():
+    reg_data = {'South Atlantic': {'lat': [-90, 0], 'lon': [290, 360]},
+                'South Pacific': {'lat': [-90, -23], 'lon': [130, 293]},
+                'Central Pacific': {'lat': [-23, 23], 'lon': [130, 293]}, }
+
+    return reg_data

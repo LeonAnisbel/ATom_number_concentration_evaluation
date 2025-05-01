@@ -3,8 +3,10 @@ import xarray as xr
 import numpy as np
 import dask
 
+import utils
 
-def read_atom():
+
+def read_atom(region_name):
     path_atom = global_vars.dir_atom
 
     #chunk_size_time = 640
@@ -49,8 +51,13 @@ def read_atom():
 
     # Selecting the data measured at a height smaller than the hight limit and calculate 12h averages #
     height_lim = global_vars.height_limit
-    mask_below_height_limit = ds_atom.alt < height_lim
-    ds_atom_below_height_limit = ds_atom.where(ds_atom['alt'].compute() < height_lim,
+    lat_lon = utils.region_definition()[region_name]
+    ds_atom_region = ds_atom.where((ds_atom['lat'].compute() > lat_lon['lat'][0]) &
+                                   (ds_atom['lat'].compute() < lat_lon['lat'][1]) &
+                                   (ds_atom['lon'].compute() > lat_lon['lon'][0]) &
+                                   (ds_atom['lon'].compute() < lat_lon['lon'][1]),
+                                drop='True')
+    ds_atom_below_height_limit = ds_atom_region.where(ds_atom_region['alt'].compute() < height_lim,
                             drop='True')
     ds_atom_below_height_limit['time'] = ds_atom_below_height_limit.time.dt.floor(
         '12h')  # round time dimension, DDTHH:MM --> DDT00:00 or DDT12:00
@@ -79,7 +86,7 @@ def read_model(ds_atom_time_mean):
 
 ###############
     # "test mode"
-    sel_dates = sel_dates[0:5]
+    sel_dates = sel_dates[0:]
 ###############
 
     # coordinates of ATom flights
