@@ -12,7 +12,7 @@ units = global_vars.units
 figure_dir = global_vars.plot_dir
 exp = global_vars.experiment
 
-def read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name):
+def read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name, exp):
     # read in netcdf-files
     nc_file_dir = global_vars.netcdf_file_dir
     exp = global_vars.experiment
@@ -73,7 +73,7 @@ def plot_No_conc_ECHAM(data_echam_rmed, data_echam_num, region_name):
     ##############################################
 def plot_absolute_diff_map(ds_atom_time_mean, sel_dates, region_name):
 
-    c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name)
+    c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name, exp)
     diff_abs_whole_time = c_echam_tpxy - c_atom
 
     # The time step with the maximum absolute difference between model and observations is calculated.
@@ -115,7 +115,8 @@ def plot_absolute_diff_map(ds_atom_time_mean, sel_dates, region_name):
 
 def plot_relat_diff_map(ds_atom_time_mean, sel_dates, region_name):
 
-    c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name)
+    exp = global_vars.experiment
+    c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name, exp)
     diff_rel_whole_time = (c_echam_tpxy - c_atom) / c_atom
 
     # The time step with the maximum relative difference between model and observations is calculated.
@@ -174,7 +175,7 @@ def plot_relat_diff_map(ds_atom_time_mean, sel_dates, region_name):
     # Scatter plot #
     ################
 def scatter_plot(ds_atom_time_mean, sel_dates, region_name):
-    c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name)
+    c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name, exp)
 
     print(f'Scatter plot')
     t_start = sel_dates[0]
