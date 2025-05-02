@@ -1,11 +1,12 @@
-import global_vars
-import numpy as np
 from scipy.stats import norm
 import matplotlib.pyplot as plt
-import math
-import plots
 from scipy.integrate import quad
-
+import numpy as np
+import math
+import global_vars
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import r2_score
+from scipy.stats import linregress
 
 def No_particles_ECHAM_to_ATOM(data_echam_num, data_echam_rmed, region_name):
     """Calculate number of particles in ECHAM that go into ATom fine, accumulation and coarse, respectively #
@@ -270,3 +271,51 @@ def region_definition():
                 'Central Pacific': {'lat': [-23, 23], 'lon': [130, 293]}, }
 
     return reg_data
+
+
+def get_statistics_updated(c_atom, c_echam_txy):
+    """Function to compute statistics"""
+    # model
+    std_model = float(np.nanstd(c_echam_txy, ddof=1))  # model data's standard deviation at station location
+    mean_model = float(np.nanmean(c_echam_txy))  # model data's mean at station location
+
+    # observations
+    std_obs = float(np.nanstd(c_atom, ddof=1))  # standard deviation of observed values
+    mean_obs = float(np.nanmean(c_atom))  # mean of observed values over time
+
+    # model-observations
+    # root mean square error btw. model and observations at station location
+    MSE = mean_squared_error(c_atom, c_echam_txy)
+    RMSE = float(math.sqrt(MSE))
+
+    # mean bias btw. model and observation at station location
+    mean_bias = np.nanmean(np.subtract(c_echam_txy, c_atom))
+    # print(mean_bias, np.nanmean(c_echam_txy - c_atom))
+    # print(c_echam_txy, c_atom)
+
+    # normalized mean biases btw. model and observations, at station locations
+    normalized_mean_bias = np.nansum(np.subtract(c_echam_txy, c_atom)) / np.nansum(c_atom)
+
+    # correlation coefficients
+    res_lin_reg = linregress(c_atom, c_echam_txy)
+    pearsons_coeff = res_lin_reg.rvalue
+    pval_corr = res_lin_reg.pvalue
+
+    # index of agreement
+    ioa = 1 - (np.nansum(np.square(c_atom - c_echam_txy))) / (
+        np.nansum(np.square(np.abs(c_echam_txy - np.nanmean(c_atom)) + np.abs(c_atom - np.nanmean(c_atom)))))
+
+    # Coefficient of Determination-R2 score
+    # r2 = r2_score(c_atom, c_echam_txy)
+
+    dict_stat = {'model_std': std_model,
+                 'obs_std': std_obs,
+                 'RMSE': RMSE,
+                 'MB': mean_bias,
+                 'NMB': normalized_mean_bias,
+                 'pval': pval_corr,
+                 'pearsons_coeff': pearsons_coeff,
+                 # 'r2':r2,
+                 'slope': res_lin_reg.slope,
+                 'intercept': res_lin_reg.intercept}
+    return dict_stat

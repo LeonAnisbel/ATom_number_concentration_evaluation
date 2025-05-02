@@ -437,7 +437,7 @@ ax = plt.axes(projection=ccrs.PlateCarree(central_longitude=180))
 map_plot = ax.scatter(diff_abs.lon, diff_abs.lat, c=diff_abs.values, cmap='RdBu', vmin=-colormap_range, vmax=colormap_range, transform=ccrs.PlateCarree())
 ax.coastlines()
 cbar = fig.colorbar(map_plot)
-ax.set_title(f'$c_\mathrm{{{mode_atom}}}$$_\mathrm{{,ECHAM}} - c_\mathrm{{{mode_atom}}}$$_\mathrm{{,ATom}}$ in $m^{{-3}}$\n{str(t_start)[0:10]} - {str(t_end)[0:10]}\n{run}')
+ax.set_title(f'$c_\mathrm{{{mode_atom}}}$$_\mathrm{{,ECHAM}} - c_\mathrm{{{mode_atom}}}$$_\mathrm{{,ATom}}$ in m$^{{-3}}$\n{str(t_start)[0:10]} - {str(t_end)[0:10]}\n{run}')
 
 # add grid lines with labels
 gl = ax.gridlines(draw_labels=True, x_inline=False, y_inline=False)
@@ -526,7 +526,7 @@ fac10 = np.count_nonzero(np.logical_and(0.1 <= m_t_wrt_o_t, m_t_wrt_o_t <= 10))/
 
 #%%
 #units = c_echam_tpxy.attrs['units']
-units = '$m^{{-3}}$'
+units = 'm$^{{-3}}$'
 
 statistical_quantities = [
         ['mean standard deviation (of model, at station location)', std_model, units],

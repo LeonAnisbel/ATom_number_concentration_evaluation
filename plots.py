@@ -7,15 +7,14 @@ import global_vars
 import utils
 
 #def No_conc_ATOM_limits(r_median, coa_atom_upper, sigma_mode):
-mode_atom = global_vars.mode_atom
+
 units = global_vars.units
 figure_dir = global_vars.plot_dir
-exp = global_vars.experiment
 
-def read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name, exp):
+
+def read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name, exp, mode_a):
     # read in netcdf-files
     nc_file_dir = global_vars.netcdf_file_dir
-    exp = global_vars.experiment
     c_fine_echam = xr.open_dataset(f'{nc_file_dir}/{exp}_c_fine_echam_{region_name}.nc')
     c_acc_echam = xr.open_dataset(f'{nc_file_dir}/{exp}_c_acc_echam_{region_name}.nc')
     c_coa_echam = xr.open_dataset(f'{nc_file_dir}/{exp}_c_coa_echam_{region_name}.nc')
@@ -29,8 +28,8 @@ def read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name, exp):
                   'coarse': {'atom': ds_atom_time_mean['N_coarse_AMP'],
                              'echam': c_coa_echam['c_num']}}
 
-    c_atom = ds_of_mode[mode_atom]['atom'].sel(time=sel_dates)
-    c_echam_tpxy = ds_of_mode[mode_atom]['echam']
+    c_atom = ds_of_mode[mode_a]['atom'].sel(time=sel_dates)
+    c_echam_tpxy = ds_of_mode[mode_a]['echam']
 
     return c_atom, c_echam_tpxy
 
@@ -72,8 +71,9 @@ def plot_No_conc_ECHAM(data_echam_rmed, data_echam_num, region_name):
     # Calculate and plot the absolute difference #
     ##############################################
 def plot_absolute_diff_map(ds_atom_time_mean, sel_dates, region_name):
-
-    c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name, exp)
+    mode_atom = global_vars.mode_atom
+    exp = global_vars.experiment
+    c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name, exp, mode_atom)
     diff_abs_whole_time = c_echam_tpxy - c_atom
 
     # The time step with the maximum absolute difference between model and observations is calculated.
@@ -101,7 +101,7 @@ def plot_absolute_diff_map(ds_atom_time_mean, sel_dates, region_name):
     ax.coastlines()
     cbar = fig.colorbar(map_plot)
     ax.set_title(
-        f'$c_\mathrm{{{mode_atom}}}$$_\mathrm{{,ECHAM}} - c_\mathrm{{{mode_atom}}}$$_\mathrm{{,ATom}}$ in $m^{{-3}}$\n{str(t_start)[0:10]} - {str(t_end)[0:10]}\n{exp}')
+        f'$c_\mathrm{{{mode_atom}}}$$_\mathrm{{,ECHAM}} - c_\mathrm{{{mode_atom}}}$$_\mathrm{{,ATom}}$ in m$^{{-3}}$\n{str(t_start)[0:10]} - {str(t_end)[0:10]}\n{exp}')
 
     # add grid lines with labels
     gl = ax.gridlines(draw_labels=True, x_inline=False, y_inline=False)
@@ -114,9 +114,9 @@ def plot_absolute_diff_map(ds_atom_time_mean, sel_dates, region_name):
     plt.close()
 
 def plot_relat_diff_map(ds_atom_time_mean, sel_dates, region_name):
-
+    mode_atom = global_vars.mode_atom
     exp = global_vars.experiment
-    c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name, exp)
+    c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name, exp, mode_atom)
     diff_rel_whole_time = (c_echam_tpxy - c_atom) / c_atom
 
     # The time step with the maximum relative difference between model and observations is calculated.
@@ -175,7 +175,9 @@ def plot_relat_diff_map(ds_atom_time_mean, sel_dates, region_name):
     # Scatter plot #
     ################
 def scatter_plot(ds_atom_time_mean, sel_dates, region_name):
-    c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name, exp)
+    mode_atom = global_vars.mode_atom
+    exp = global_vars.experiment
+    c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name, exp, mode_atom)
 
     print(f'Scatter plot')
     t_start = sel_dates[0]

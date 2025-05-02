@@ -7,7 +7,11 @@ dir_echam = f'{main_dir}/ECHAM_HAM_output/{experiment}/NUM_radius'
 netcdf_file_dir = 'nc_files/'
 plot_dir = 'plots/'
 mode_atom = 'coarse' # select the mode
-units = '$m^{{-3}}$'
+units = 'm$^{{-3}}$'
+
+experiments_all = ['echam_base', 'ac3_arctic']
+mode_atom_all = ['fine', 'accumulation', 'coarse']
+mode_atom_names = ['fine', 'acc', 'coa']
 
 params_echam = {
     'nucleation': {'sigma_i': 1.59},
