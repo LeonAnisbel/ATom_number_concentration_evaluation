@@ -113,8 +113,7 @@ def clean_nan(x_val, y_val):
             y_val_notnan.append(y_val[i])
     return np.array(x_val_notnan), np.array(y_val_notnan)
 
-def all_reg_stat(regions, factor, i, exp):
-    mode_atom = global_vars.mode_atom_all
+def all_reg_stat(regions, factor, i, exp, mode_atom):
     x_reg = []
     y_reg = []
     for j, reg in enumerate(regions.keys()):
@@ -148,7 +147,7 @@ def all_reg_stat(regions, factor, i, exp):
 
 
 def plot_fig_thesis(dict_data, mode_atom_double=None):
-    fig, axs = plt.subplots(2,3, figsize=(12, 10))
+    fig, axs = plt.subplots(2,2, figsize=(8, 10))
     axs.flatten()
     regions = utils.region_definition()
     color_marker_reg = [['y', 'o'],
@@ -156,28 +155,25 @@ def plot_fig_thesis(dict_data, mode_atom_double=None):
                         ['lightgreen', 's']]
     exp_names_plot = ['SPMOAoff', 'SPMOAon']
     ylimits = [[10**6, 10**10],
-               [10**6, 10**10],
-               [10**5, 10**8]]
-    factor = [10**-10, 10**-10, 10**-8]
-    ax_label = ['10$^{10}$', '10$^{10}$', '10$^{8}$']
+               [10**5, 10**8]] #[10**6, 10**10],
+    factor = [10**-10, 10**-8]#10**-10,
+    ax_label = ['10$^{10}$', '10$^{8}$'] #'10$^{10}$',
     locs = [0, 0.3, 0.6]
-    mode_atom_names = global_vars.mode_atom_names
-    mode_atom = global_vars.mode_atom_all
+    mode_atom_names = global_vars.mode_atom_names[1:]
+    mode_atom = global_vars.mode_atom_all[1:]
 
     for e, exp in enumerate(experiments):
         print(exp)
-        for i, ax in enumerate(axs[e][:3]):
+        for i, ax in enumerate(axs[e][:2]):
             if i == 1:
                 ax.set_title(rf'{exp_names_plot[0]}'+'\n \n',
                              loc='center',
                              fontsize=font)
-            parameters = all_reg_stat(regions, factor[i], i, exp)
+            parameters = all_reg_stat(regions, factor[i], i, exp, mode_atom)
             for j, reg in enumerate(regions.keys()):
                 x = dict_data[reg][exp]['Observation'][mode_atom[i]]*factor[i]
                 y = dict_data[reg][exp]['Model'][mode_atom[i]].values*factor[i]
-                if mode_atom_names[i] == 'acc':
-                    title = exp_names_plot[e] + '\n \n' + mode_atom_names[i]
-                else: title = mode_atom_names[i]
+                title = exp_names_plot[e] + '\n \n' + mode_atom_names[i]
                 x_clean, y_clean = clean_nan(x, y)
 
                 dict_stat = utils.get_statistics_updated(x_clean, y_clean)
