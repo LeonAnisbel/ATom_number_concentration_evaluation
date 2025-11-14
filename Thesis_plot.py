@@ -1,13 +1,8 @@
 import pickle
-
 import numpy as np
 import matplotlib.pyplot as plt
-import xarray as xr
-import cartopy.crs as ccrs
 import math
-
 from docutils.nodes import title
-
 import global_vars
 import utils
 from global_vars import experiment, mode_atom
@@ -17,16 +12,34 @@ font = 12
 experiments = global_vars.experiments_all
 
 def set_log_ax(axis, x, y, style):
-    """ Adding diagonal lines in logarithmic axis """
+    """
+    Adding diagonal lines in logarithmic axis
+    :param axis: matplotlib axis
+    :var x: x axis values
+    :var y: y axis values
+    :param style: line style
+    """
     axis.loglog(x, y,
               color="black",
               linestyle=style,
               alpha=0.5,
               linewidth=0.5)
 
-def scatter_plot(atom, model, ax, ylim, region, title, color_reg, parameters, parameters_reg_loc, exp,right_panel=False):
-    """ Used to create a scatter plot per panel """
- #, 'g', 'm', 'k'
+def scatter_plot(atom, model, ax, ylim, region, title, color_reg, parameters, parameters_reg_loc, exp, right_panel=False):
+    """
+    Scatter plot of model number concentration as model vs. ATom values
+    :var atom: ATom data
+    :var model: model number concentration mapped onto ATom size modes
+    :param ylim: y axis limits
+    :param region: region name
+    :param title: plot title
+    :param color_reg: color of region name
+    :param parameters: parameters for region name
+    :param parameters_reg_loc: statistics per regions
+    :param exp: experiment name
+    :param right_panel: plot right panel
+    :return: matplotlib object
+    """
     pl = ax.scatter(atom,
                     model,
                     color=color_reg[0],
@@ -89,6 +102,15 @@ def scatter_plot(atom, model, ax, ylim, region, title, color_reg, parameters, pa
 
 
 def create_data_dict(ds_atom_time_mean, sel_dates, region_name, dict_data):
+    """
+    Reads netcdf files with data model modes mapped to ATom modes and creates a unique dictionary with the data per
+    region and simulation experiment
+    :var ds_atom_time_mean: dataset with ATOM data with a 12 h mean
+    :var sel_dates: time covered by both ATom and ECHAM
+    :var region_name: region name
+    :var dict_data: dictionary with data per region and simulation experiment as keys to fill with data
+    :return : dictionary with data of model mapped number concentration per region and simulation experiment as keys
+    """
     for exp in experiments:
         dict_data[region_name][exp]['Model'] = {}
         dict_data[region_name][exp]['Observation'] = {}
@@ -104,6 +126,12 @@ def create_data_dict(ds_atom_time_mean, sel_dates, region_name, dict_data):
     return dict_data
 
 def clean_nan(x_val, y_val):
+    """
+    Clean nan values in x_val, y_val
+    :x_val: array of x_val
+    :y_val: array of y_val
+    :return: cleaned x_val and y_val
+    """
     x_val_notnan, y_val_notnan = [], []
     for i, y in enumerate(y_val):
         if isinstance(y, float) and math.isnan(y):
@@ -114,6 +142,15 @@ def clean_nan(x_val, y_val):
     return np.array(x_val_notnan), np.array(y_val_notnan)
 
 def all_reg_stat(regions, factor, i, exp, mode_atom):
+    """
+    Compute statistics of model vs. ATom number concentration for the whole dataset (without considering regions)
+    :var regions: dictionary with region name as key
+    :var factor: factor to scale data
+    :param i: index of experiment ID list
+    :param exp: experiment ID name
+    :param mode_atom: ATOM mode name
+    :return: dictionary with statistics of model vs. ATom number concentration without considering regions
+    """
     x_reg = []
     y_reg = []
     for j, reg in enumerate(regions.keys()):
@@ -123,9 +160,8 @@ def all_reg_stat(regions, factor, i, exp, mode_atom):
         y_reg.append(y)
     x_reg_one_list = np.array([float(item) for sublist in x_reg for item in sublist])
     y_reg_one_list = np.array([float(item) for sublist in y_reg for item in sublist])
-    x_reg_one_list_clean, y_reg_one_list_clean = clean_nan(x_reg_one_list, y_reg_one_list)
-    # print(x_reg_one_list_clean, y_reg_one_list_clean)
-    dict_stat = utils.get_statistics_updated(x_reg_one_list_clean, y_reg_one_list_clean)
+    x_reg_one_list_clean, y_reg_one_list_clean = clean_nan(x_reg_one_list, y_reg_one_list) # clean nans
+    dict_stat = utils.get_statistics_updated(x_reg_one_list_clean, y_reg_one_list_clean) # get stat
 
     print(dict_stat['pval'])
     if dict_stat['pval'] < 0.05:
@@ -147,6 +183,12 @@ def all_reg_stat(regions, factor, i, exp, mode_atom):
 
 
 def plot_fig_thesis(dict_data, mode_atom_double=None):
+    """
+    Plot figure of model vs. ATom number concentration per regions and ATom modes
+    :var dict_data: dictionary with data per region and simulation experiment as keys of model and ATom number
+    concentration
+    :return : None
+    """
     fig, axs = plt.subplots(2,2, figsize=(8, 10))
     axs.flatten()
     regions = utils.region_definition()
@@ -169,7 +211,7 @@ def plot_fig_thesis(dict_data, mode_atom_double=None):
                 ax.set_title(rf'{exp_names_plot[0]}'+'\n \n',
                              loc='center',
                              fontsize=font)
-            parameters = all_reg_stat(regions, factor[i], i, exp, mode_atom)
+            parameters = all_reg_stat(regions, factor[i], i, exp, mode_atom) # calculate stat per region
             for j, reg in enumerate(regions.keys()):
                 x = dict_data[reg][exp]['Observation'][mode_atom[i]]*factor[i]
                 y = dict_data[reg][exp]['Model'][mode_atom[i]].values*factor[i]

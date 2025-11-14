@@ -1,4 +1,5 @@
 #%%
+# Jupyter notebook created by Swetlana Paul (PhD. candicate at TROPOS)
 import cartopy.crs as ccrs
 import dask
 import math

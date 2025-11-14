@@ -6,13 +6,20 @@ import math
 import global_vars
 import utils
 
-#def No_conc_ATOM_limits(r_median, coa_atom_upper, sigma_mode):
-
 units = global_vars.units
 figure_dir = global_vars.plot_dir
 
 
 def read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name, exp, mode_a):
+    """
+    Read netcdf files with ECHAM-HAM number concentration with modes mapped onto ATom modes
+    :var ds_atom_time_mean: dataset with ATOM data with a 12 h mean
+    :var sel_dates: time covered by both ATom and ECHAM
+    :param region_name: region name
+    :param exp: experiment name
+    :param mode_a: mode name
+    :return: 1-D number concentration from ATom and ECHAM-HAM
+    """
     # read in netcdf-files
     nc_file_dir = global_vars.netcdf_file_dir
     c_fine_echam = xr.open_dataset(f'{nc_file_dir}/{exp}_c_fine_echam_{region_name}.nc')
@@ -34,6 +41,13 @@ def read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name, exp, mode_a
     return c_atom, c_echam_tpxy
 
 def plot_No_conc_ECHAM(data_echam_rmed, data_echam_num, region_name):
+    """
+    Plots number concentration of ECHAM without mapping the modes onto ATom modes
+    :var data_echam_rmed: dataset with ECHAM-HAM data of median radius
+    :var data_echam_num: dataset with ECHAM-HAM number concentration
+    :param region_name: region name
+    :return: None
+    """
 # inside certain latitude band (ECHAM data, time average of sum of all ECHAM modes)
 
     # define a latitude band
@@ -71,6 +85,13 @@ def plot_No_conc_ECHAM(data_echam_rmed, data_echam_num, region_name):
     # Calculate and plot the absolute difference #
     ##############################################
 def plot_absolute_diff_map(ds_atom_time_mean, sel_dates, region_name):
+    """
+    Plots the absolute difference map of ATom values in contrast to model quantities of number concentration per mode
+    :param ds_atom_time_mean: dataset with ATOM data with a 12 h mean
+    :param sel_dates: time covered by both ATom and ECHAM
+    :param region_name: region name
+    :return: None
+    """
     mode_atom = global_vars.mode_atom
     exp = global_vars.experiment
     c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name, exp, mode_atom)
@@ -114,6 +135,13 @@ def plot_absolute_diff_map(ds_atom_time_mean, sel_dates, region_name):
     plt.close()
 
 def plot_relat_diff_map(ds_atom_time_mean, sel_dates, region_name):
+    """
+    Plots the relative difference map of ATom values in contrast to model quantities of number concentration per mode
+    :param ds_atom_time_mean: dataset with ATOM data with a 12 h mean
+    :param sel_dates: time covered by both ATom and ECHAM
+    :param region_name: region name
+    :return: None
+    """
     mode_atom = global_vars.mode_atom
     exp = global_vars.experiment
     c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name, exp, mode_atom)
@@ -175,6 +203,13 @@ def plot_relat_diff_map(ds_atom_time_mean, sel_dates, region_name):
     # Scatter plot #
     ################
 def scatter_plot(ds_atom_time_mean, sel_dates, region_name):
+    """
+    Plots the data of ATom values in contrast to model quantities of number concentration per mode
+    :param ds_atom_time_mean: dataset with ATOM data with a 12 h mean
+    :param sel_dates: time covered by both ATom and ECHAM
+    :param region_name: region name
+    :return: None
+    """
     mode_atom = global_vars.mode_atom
     exp = global_vars.experiment
     c_atom, c_echam_tpxy = read_nc_files_No_conc(ds_atom_time_mean, sel_dates, region_name, exp, mode_atom)

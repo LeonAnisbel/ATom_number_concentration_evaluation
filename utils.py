@@ -9,10 +9,17 @@ from sklearn.metrics import r2_score
 from scipy.stats import linregress
 
 def No_particles_ECHAM_to_ATOM(data_echam_num, data_echam_rmed, region_name):
-    """Calculate number of particles in ECHAM that go into ATom fine, accumulation and coarse, respectively #
-"""
+    """
+    Calculate number of particles in ECHAM that go into ATom fine, accumulation and coarse mode
+    Creates netcdf files with the model modes mapped to ATom modes
+    :var data_echam_num: datasets with model number concentration from ECHAM-HAM
+    :var data_echam_rmed: dataset with median radius from ECHAM-HAM
+    :param region_name: region name
+    :return :None
+    """
     parameters_echam = global_vars.params_echam
     exp = global_vars.experiment
+    print(exp)
 
     parts_fine_echam = []
     parts_acc_echam = []
@@ -22,6 +29,8 @@ def No_particles_ECHAM_to_ATOM(data_echam_num, data_echam_rmed, region_name):
         # r_median_i for every time step
         r_median = data_echam_rmed[mode_echam_k]['reduced dataset'].where(
             data_echam_rmed[mode_echam_k]['reduced dataset'] > 0, other=np.nan)
+
+        print(mode_echam_k,' ', region_name, '\n', r_median.mean().values)
 
         # sigma_i for every mode
         sigma_mode = parameters_echam[mode_echam_k]['sigma_i']
@@ -43,8 +52,7 @@ def No_particles_ECHAM_to_ATOM(data_echam_num, data_echam_rmed, region_name):
         N_atom_fine = (norm.cdf(beta_atom_fine) - norm.cdf(alpha_atom_fine))
 
         # fraction of N_tot that should be counted as ATom fine mode
-        fraction_fine = (
-                                    r_median / r_median) * N_atom_fine  # = N_atom_fine/1; (r_median/r_median) is just to keep the xarray-dimensions
+        fraction_fine = (r_median / r_median) * N_atom_fine  # = N_atom_fine/1; (r_median/r_median) is just to keep the xarray-dimensions
 
         # number of particles that should be counted as ATom fine mode
         part_fine_echam_from_mode = fraction_fine * data_echam_num[mode_echam_k]['reduced dataset']
@@ -63,8 +71,7 @@ def No_particles_ECHAM_to_ATOM(data_echam_num, data_echam_rmed, region_name):
         N_atom_acc = (norm.cdf(beta_atom_acc) - norm.cdf(alpha_atom_acc))
 
         # fraction of N_tot that should be counted as ATom accumulation mode
-        fraction_acc = (
-                                   r_median / r_median) * N_atom_acc  # = N_atom_acc/1; (r_median/r_median) is just to keep the xarray-dimensions
+        fraction_acc = (r_median / r_median) * N_atom_acc  # = N_atom_acc/1; (r_median/r_median) is just to keep the xarray-dimensions
 
         # number of particles that should be counted as ATom accumulation mode
         part_acc_echam_from_mode = fraction_acc * data_echam_num[mode_echam_k]['reduced dataset']
@@ -83,8 +90,7 @@ def No_particles_ECHAM_to_ATOM(data_echam_num, data_echam_rmed, region_name):
         N_atom_coa = (norm.cdf(beta_atom_coa) - norm.cdf(alpha_atom_coa))
 
         # fraction of N_tot that should be counted as ATom coarse mode
-        fraction_coa = (
-                                   r_median / r_median) * N_atom_coa  # = N_atom_coa/1; (r_median/r_median) is just to keep the xarray-dimensions
+        fraction_coa = (r_median / r_median) * N_atom_coa  # = N_atom_coa/1; (r_median/r_median) is just to keep the xarray-dimensions
 
         # number of particles that should be counted as ATom coarse mode
         part_coa_echam_from_mode = fraction_coa * data_echam_num[mode_echam_k]['reduced dataset']
@@ -206,6 +212,13 @@ def No_particles_ECHAM_to_ATOM(data_echam_num, data_echam_rmed, region_name):
 
 
 def statistics(c_atom, c_echam_tpxy, sel_dates):
+    """
+    Function to compute statistics
+    :var c_atom: 1-D ATom data
+    :var c_echam_txy: 1-D model data
+    :var sel_dates: time covered by both ATom and ECHAM
+    :return: a list with relevant statistics
+    """
     # %%
     ################################################
     # Calculating statistics for whole time period #
@@ -266,6 +279,10 @@ def statistics(c_atom, c_echam_tpxy, sel_dates):
 
 
 def region_definition():
+    """
+    Creates dictionary with region names as keys and latitude and longitude as limits
+    :return :dictionary
+    """
     reg_data = {'South Atlantic': {'lat': [-90, 0], 'lon': [290, 360]},
                 'South Pacific': {'lat': [-90, -23], 'lon': [130, 293]},
                 'Central Pacific': {'lat': [-23, 23], 'lon': [130, 293]}, }
@@ -274,7 +291,12 @@ def region_definition():
 
 
 def get_statistics_updated(c_atom, c_echam_txy):
-    """Function to compute statistics"""
+    """
+    Function to compute statistics
+    :var c_atom: 1-D ATom data
+    :var c_echam_txy: 1-D model data
+    :return: a dictionary with relevant statistics
+    """
     # model
     std_model = float(np.nanstd(c_echam_txy, ddof=1))  # model data's standard deviation at station location
     mean_model = float(np.nanmean(c_echam_txy))  # model data's mean at station location

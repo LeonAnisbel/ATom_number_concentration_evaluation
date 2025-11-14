@@ -2,11 +2,15 @@ import global_vars
 import xarray as xr
 import numpy as np
 import dask
-
 import utils
 
 
 def read_atom(region_name):
+    """
+    Reads ATom data
+    :var region_name: Empty dictionary with regions names as keys
+    :return :dataset with ATOM data with a 12 h mean
+    """
     path_atom = global_vars.dir_atom
 
     #chunk_size_time = 640
@@ -46,8 +50,10 @@ def read_atom(region_name):
     ds_atom_0['time'] = ds_atom_time['time']
     ds_atom_p['time'] = ds_atom_time['time']
     ds_atom_lat_lon_alt['time'] = ds_atom_time['time']
-    ds_atom = ds_atom_0.assign(lat=ds_atom_lat_lon_alt['G_LAT'], lon=ds_atom_lat_lon_alt['G_LONG'],
-                               alt=ds_atom_lat_lon_alt['G_ALT'], p=ds_atom_p['P'])
+    ds_atom = ds_atom_0.assign(lat=ds_atom_lat_lon_alt['G_LAT'],
+                               lon=ds_atom_lat_lon_alt['G_LONG'],
+                               alt=ds_atom_lat_lon_alt['G_ALT'],
+                               p=ds_atom_p['P'])
 
     # Selecting the data measured at a height smaller than the hight limit and calculate 12h averages #
     height_lim = global_vars.height_limit
@@ -69,6 +75,11 @@ def read_atom(region_name):
 
 
 def read_model(ds_atom_time_mean):
+    """
+    Reads ECHAM6.3-HAM2.3 model data of number concentration and median radius
+    :var ds_atom_time_mean: dataset with ATOM data with a 12 h mean
+    :return :3 datasets with model number concentration and median radius as well as time covered by both ATom and ECHAM
+    """
     path_echam = global_vars.dir_echam
     exp = global_vars.experiment
     print(path_echam + '/' + exp + '*NUM_NUC_plev.nc')
@@ -110,7 +121,8 @@ def read_model(ds_atom_time_mean):
         with dask.config.set(**{
             'array.slicing.split_large_chunks': True}):  # otherwise xarray produces a "PerformanceWarning: Slicing is producing a large chunk"
             echam_tp = echam_t.interp(plev=sel_plevs)
-            echam_tpxy = echam_tp.interp(lat=sel_lats, lon=sel_lons)
+            echam_tpxy = echam_tp.interp(lat=sel_lats,
+                                         lon=sel_lons)
         data_echam_num[mode_echam_i]['reduced dataset'] = echam_tpxy
 
 
@@ -119,15 +131,18 @@ def read_model(ds_atom_time_mean):
 
     for mode_echam_j in data_echam_rmed.keys():
         echam_rmed_0 = \
-        xr.open_mfdataset(path_echam + '/' + exp + data_echam_rmed[mode_echam_j]['file ending'], concat_dim='time',
-                          combine='nested', chunks={'plev': 30, 'lat': 30, 'lon': 30})[
+        xr.open_mfdataset(path_echam + '/' + exp + data_echam_rmed[mode_echam_j]['file ending'],
+                          concat_dim='time',
+                          combine='nested',
+                          chunks={'plev': 30, 'lat': 30, 'lon': 30})[
             data_echam_rmed[mode_echam_j]['var. name']]
         echam_rmed_0['time'] = echam_rmed_0.time.dt.ceil('12h')
         echam_rmed_t = echam_rmed_0.sel(time=sel_dates)
         with dask.config.set(**{
             'array.slicing.split_large_chunks': True}):  # otherwise xarray produces a "PerformanceWarning: Slicing is producing a large chunk"
             echam_rmed_tp = echam_rmed_t.interp(plev=sel_plevs)
-            echam_rmed_tpxy = echam_rmed_tp.interp(lat=sel_lats, lon=sel_lons)
+            echam_rmed_tpxy = echam_rmed_tp.interp(lat=sel_lats,
+                                                   lon=sel_lons)
         data_echam_rmed[mode_echam_j]['reduced dataset'] = echam_rmed_tpxy * (10 ** 6)  # convert into um
 
 
