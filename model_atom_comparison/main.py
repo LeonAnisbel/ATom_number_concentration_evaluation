@@ -1,8 +1,5 @@
 import Thesis_plot
-import global_vars
-import plots
-import read_data
-import utils
+from utils_functions import utils, global_vars, read_data, plots
 import pickle
 
 

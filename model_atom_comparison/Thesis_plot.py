@@ -2,11 +2,9 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-from docutils.nodes import title
-import global_vars
-import utils
-from global_vars import experiment, mode_atom
-from plots import read_nc_files_No_conc
+from utils_functions import utils, global_vars
+from utils_functions.global_vars import mode_atom
+from utils_functions.plots import read_nc_files_No_conc
 
 font = 12
 experiments = global_vars.experiments_all

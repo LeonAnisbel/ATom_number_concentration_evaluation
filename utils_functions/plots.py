@@ -3,8 +3,7 @@ import matplotlib.pyplot as plt
 import xarray as xr
 import cartopy.crs as ccrs
 import math
-import global_vars
-import utils
+from utils_functions import utils, global_vars
 
 units = global_vars.units
 figure_dir = global_vars.plot_dir

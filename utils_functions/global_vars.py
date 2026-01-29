@@ -4,8 +4,8 @@ height_limit = 1000 # height limit in m
 experiment = 'echam_base'
 experiment = 'ac3_arctic'
 dir_echam = f'{main_dir}/ECHAM_HAM_output/{experiment}/NUM_radius'
-netcdf_file_dir = 'nc_files/'
-plot_dir = 'plots/'
+netcdf_file_dir = '../nc_files/'
+plot_dir = '../plots/'
 mode_atom = 'coarse' # select the mode
 units = 'm$^{{-3}}$'
 

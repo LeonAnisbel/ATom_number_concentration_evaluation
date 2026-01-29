@@ -5,7 +5,6 @@ import numpy as np
 import math
 import global_vars
 from sklearn.metrics import mean_squared_error
-from sklearn.metrics import r2_score
 from scipy.stats import linregress
 
 def No_particles_ECHAM_to_ATOM(data_echam_num, data_echam_rmed, region_name):

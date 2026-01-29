@@ -1,8 +1,7 @@
-import global_vars
 import xarray as xr
 import numpy as np
 import dask
-import utils
+from utils_functions import utils, global_vars
 
 
 def read_atom(region_name):
