@@ -13,7 +13,7 @@
 
 * Run [main.py](model_atom_comparison/main.py) to read ECHAM-HAM model data and ATom data, perform the integration of model modes over the limits of ATom modes from observations
 
-
 * Run [Thesis_plot.py](model_atom_comparison/Thesis_plot.py) to create multipanel plot of model vs. Atom number concentration. It also includes subregions in the southern ocean color-coded in the plot with statistics.
 
-
+### Contributions
+- Swetlana Paul M.Sc. - designed and performed the mapping of the aerosol model modes to the ATom modes 
